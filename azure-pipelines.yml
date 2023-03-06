@@ -51,10 +51,6 @@ steps:
     Contents: '**.bicep'
     TargetFolder: '$(Build.ArtifactStagingDirectory)/Bicep'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  condition: succeeded()
-
 - task: PublishPipelineArtifact@1
   inputs:
     targetPath: '$(Build.ArtifactStagingDirectory)'
