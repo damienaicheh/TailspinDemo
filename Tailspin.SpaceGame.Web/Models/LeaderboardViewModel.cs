@@ -2,6 +2,7 @@
 
 namespace TailSpin.SpaceGame.Web.Models
 {
+    // Nex comment
     public class LeaderboardViewModel
     {
         // The game mode selected in the view.
