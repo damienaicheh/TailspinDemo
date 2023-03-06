@@ -64,9 +64,11 @@ stages:
         artifact: 'drop'
         publishLocation: 'pipeline'
 
-- stage: Deploy
+- stage: DeployAzureResources
+  displayName: Deploy Azure Resources 
   jobs:
-  - job: Deploy
+  - job: DeployBicepTemplate
+    displayName: Deploy Bicep Template
     pool:
       vmImage: 'windows-latest'
     steps:
@@ -89,10 +91,68 @@ stages:
            --template-file $(System.ArtifactsDirectory)/Bicep/TailspinResources.bicep `
            --parameters websiteName=$(WebsiteName) hostingPlanName=$(HostingPlan)
     
-    - task: AzureRmWebAppDeployment@4
-      inputs:
-        ConnectionType: 'AzureRM'
-        azureSubscription: 'MCAPS-Hybrid-REQ-53192-2023-damienaicheh(90fdcd92-f0b2-4dde-89c8-c5ab5c06e7ec)'
-        appType: 'webApp'
-        WebAppName: '$(WebsiteName)'
-        packageForLinux: '$(System.ArtifactsDirectory)/**/*Web.zip'
+-  stage: DeployToDevAndStaging
+   displayName: Deploy to Dev and Staging Environments
+   jobs:
+   - deployment: DeployToDev
+     displayName: Deploy To Dev Environment
+     pool:
+       vmImage: 'windows-latest'
+     environment: 'Dev'
+     strategy:
+      runOnce:
+          deploy:
+              steps:   
+              - task: AzureRmWebAppDeployment@4
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: 'MCAPS-Hybrid-REQ-53192-2023-damienaicheh(90fdcd92-f0b2-4dde-89c8-c5ab5c06e7ec)'
+                  appType: 'webApp'
+                  WebAppName: '$(WebsiteName)'
+                  deployToSlotOrASE: true
+                  ResourceGroupName: '$(ResourceGroupName)'
+                  SlotName: 'Dev'
+                  packageForLinux: '$(Pipeline.Workspace)/**/*Web.zip'
+   
+   - deployment: DeployToStaging
+     displayName: Deploy To Staging Environment
+     pool:
+       vmImage: 'windows-latest'
+     environment: 'Staging'
+     strategy:
+      runOnce:
+          deploy:
+              steps:   
+              - task: AzureRmWebAppDeployment@4
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: 'MCAPS-Hybrid-REQ-53192-2023-damienaicheh(90fdcd92-f0b2-4dde-89c8-c5ab5c06e7ec)'
+                  appType: 'webApp'
+                  WebAppName: '$(WebsiteName)'
+                  deployToSlotOrASE: true
+                  ResourceGroupName: '$(ResourceGroupName)'
+                  SlotName: 'Staging'
+                  packageForLinux: '$(Pipeline.Workspace)/**/*Web.zip'
+
+- stage: DeployToProd
+  displayName: Deploy to Production
+  jobs:
+  - deployment: DeployToProd
+    displayName: Deploy To Production Environment
+    pool:
+      vmImage: 'windows-latest'
+    environment: 'Production'
+    strategy:
+      runOnce:
+          deploy:
+              steps:   
+              - task: AzureRmWebAppDeployment@4
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: 'MCAPS-Hybrid-REQ-53192-2023-damienaicheh(90fdcd92-f0b2-4dde-89c8-c5ab5c06e7ec)'
+                  appType: 'webApp'
+                  WebAppName: '$(WebsiteName)'
+                  deployToSlotOrASE: true
+                  ResourceGroupName: '$(ResourceGroupName)'
+                  SlotName: 'Production'
+                  packageForLinux: '$(Pipeline.Workspace)/**/*Web.zip'
