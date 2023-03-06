@@ -95,4 +95,4 @@ stages:
         azureSubscription: 'MCAPS-Hybrid-REQ-53192-2023-damienaicheh(90fdcd92-f0b2-4dde-89c8-c5ab5c06e7ec)'
         appType: 'webApp'
         WebAppName: '$(WebsiteName)'
-        packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+        packageForLinux: '$(System.ArtifactsDirectory)/**/*Web.zip'
