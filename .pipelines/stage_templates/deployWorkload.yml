@@ -1,0 +1,21 @@
+parameters:
+- name: workloadName
+  displayName: Target Workload Name
+  type: string
+  default: 'workload-prod-fa'
+
+stages:
+- stage: deploy
+  dependsOn: build
+  condition: succeeded()
+  jobs:
+  - deployment:
+    displayName: Deploy ${{ parameters.workloadName }}
+    environment: 'production'
+    pool:
+      vmImage: 'ubuntu-latest'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - bash: echo "Deploy ${{ parameters.workloadName }} to production"
