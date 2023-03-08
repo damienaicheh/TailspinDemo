@@ -1,0 +1,19 @@
+parameters:
+- name: buildConfiguration
+  displayName: Build Configuration
+  type: string
+  default: 'release'
+  values:
+  - 'debug'
+  - 'release'
+- name: preBuildSteps
+  type: stepList
+  default: []
+
+jobs:
+- job: run_build
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps: 
+  - ${{ parameters.preBuildSteps }}
+  - bash: echo "Build with ${{ parameters.buildConfiguration }}"
